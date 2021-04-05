@@ -21,17 +21,17 @@
 //
 // Status:
 //
+//  Runs on 11/20 emulator (cpu20 of UniBone, use "#define 11/20")
+//
+//  Runs on 11/04 hardware (use "#define 11/04")
+//
 //  Runs on 11/05 emulator
 //  Untested on 11/05 hardware
 //
-//  Runs on 11/40 emulator
-//  Untested on 11/40 hardware
-//
-//  Runs on 11/04 hardware
-//
-//  Runs on 11/34 emulator (use "#define 11/34" or "--def 11/34")
+//  Runs on 11/34 emulator (use "#define 11/34")
 //  Untested on 11/34 hardware
 //
+//  Runs on 11/40 emulator
 //  Untested on 11/40 hardware
 //
 //  Untested on 11/45 hardware
@@ -98,6 +98,10 @@
 #define CQKC_E0_FIX
 //      A bug in the RESTPS entry point of the CLRTBIT routine is fixed by including a patch based on a
 //      correction included in the CQKC E0 revision.
+//
+//  #define 11/20
+//      Changes to support the 11/20:
+//          SWAB insn does *not* change V-bit
 //
 //  #define 11/04
 //      Changes to support the 11/04:
@@ -2344,12 +2348,21 @@ b 0
 104400
 
 // swab1
-277
+:: 11132
+277         // scc
 313
 103402
-102401
+
+#ifdef 11/20
+    102001  // bvc swab_fail  11/20 SWAB does *not* change V-bit, hence should be set from scc above
+#else
+    102401  // bvs swab_fail  all other models should clear V-bit here
+#endif
+
 100001
-104400
+// swab_fail:
+104400      // HLT
+: 11144
 
 // tstb1
 105714

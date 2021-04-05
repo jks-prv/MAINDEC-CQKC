@@ -3,7 +3,7 @@
 MAINDEC-CQKC
 ============
 
-Instruction exerciser for DEC PDP-11/04, /05, /34, /40, /45
+Instruction exerciser for DEC PDP-11/04 /05 /20 /34 /40 /45
 ----------------------------------------------------------------------
 
 A complete, tested, editable binary listing of CQKC revision D that matches the available DEC documentation.
@@ -24,9 +24,9 @@ suitable for use by various loaders and emulation programs. Nested conditional c
 (i.e. the usual `#ifdef xxx ... #endif` syntax) is supported. For example a bug fix from
 CQKC revision E0 is added by specifying `#define CQKC_E0_FIX`.
 
-Although CQKC was originally intended for the /40 and /45 it has been found to work
-on an /05 emulator. It has also been extended to work on /04 hardware using `#define 11/04`
-and on a /34 emulator using `#define 11/34`.
+Although CQKC was originally intended for the /40 and /45 it has been found to work on an /05 emulator.
+It has also been extended to work on /04 hardware using `#define 11/04`
+and on /20 and /34 emulators using `#define 11/20` and `#define 11/34` respectively.
 
 The CQKC revision D documentation is available on [Bitsavers](http://bitsavers.informatik.uni-stuttgart.de/pdf/dec/pdp11/xxdp/diag_listings/1140_45/028_MAINDEC-11-DCQKC-D_D_1140_1145_INSTRUCTION_EXERCISER_Sep74.pdf)
 and also included here.

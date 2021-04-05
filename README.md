@@ -28,5 +28,5 @@ Although CQKC was originally intended for the /40 and /45 it has been found to w
 on an /05 emulator. It has also been extended to work on /04 hardware using `#define 11/04`
 and on a /34 emulator using `#define 11/34`.
 
-The CQKC revision D documentation is available on [Bitsavers](bitsavers.informatik.uni-stuttgart.de/pdf/dec/pdp11/xxdp/diag_listings/1140_45/028_MAINDEC-11-DCQKC-D_D_1140_1145_INSTRUCTION_EXERCISER_Sep74.pdf)
+The CQKC revision D documentation is available on [Bitsavers](http://bitsavers.informatik.uni-stuttgart.de/pdf/dec/pdp11/xxdp/diag_listings/1140_45/028_MAINDEC-11-DCQKC-D_D_1140_1145_INSTRUCTION_EXERCISER_Sep74.pdf)
 and also included here.

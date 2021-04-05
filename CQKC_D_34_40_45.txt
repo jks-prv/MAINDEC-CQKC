@@ -21,12 +21,12 @@
 //
 // Status:
 //
-//  Runs on 11/20 emulator (cpu20 of UniBone, use "#define 11/20")
-//
 //  Runs on 11/04 hardware (use "#define 11/04")
 //
 //  Runs on 11/05 emulator
 //  Untested on 11/05 hardware
+//
+//  Runs on 11/20 emulator (cpu20 of UniBone, use "#define 11/20")
 //
 //  Runs on 11/34 emulator (use "#define 11/34")
 //  Untested on 11/34 hardware
@@ -76,7 +76,7 @@
 //   320 PSW_USER
 //    344 (first free)
 //
-//   332 11/04 TTYCHK debug (NB: conflicts with PSW_USER above!)
+//   332 PB_11/04 TTYCHK debug (NB: conflicts with PSW_USER above!)
 //    354 or 362 (first free, depends on particular debug code varient)
 //
 //   362 LMA_HIGHER

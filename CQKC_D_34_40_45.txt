@@ -45,6 +45,11 @@
 //  untested    Operation with other disk devices (RF, RP, RC, RS04)
 //
 //
+//  Searching:
+//  Note that for each page number shown in the program listing of the PDF document
+//  the corresponding comment "// page NN" appears below.
+//
+//
 //  Memory map:
 //
 //  20  iot vec
@@ -800,6 +805,8 @@ b 0
 5003
 12700   6
 167     100
+
+// page 20
 
 // cnvadr
 4767    2202
@@ -1579,6 +1586,8 @@ b 0
 10701
 167     714
 : 6330
+
+// page 34
 
 // x28
 177777  177777  177777      // .word -1,-1,-1,-1,0,0,0,0
@@ -4111,7 +4120,7 @@ b 0
 : 16310
 
 
-// page 73
+// page 72
 
 123453
 1401
@@ -5653,6 +5662,8 @@ b 0
 104000
 : 24170
 
+
+// page 97
 
 // rtt1
 13767   177776  166

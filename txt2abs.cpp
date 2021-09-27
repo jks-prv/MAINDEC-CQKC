@@ -47,7 +47,10 @@ void error(const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	printf("line %d ERROR: ", lnum);
+	if (list)
+	    printf("line #%d:              | ERROR: ", lnum);
+	else
+	    printf("line %d ERROR: ", lnum);
 	vprintf(fmt, ap);
 	printf("\n");
 	errs++;
@@ -66,7 +69,10 @@ void note(const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	printf("line %d NOTE: ", lnum);
+	if (list)
+	    printf("line #%d:              | NOTE: ", lnum);
+	else
+	    printf("line %d NOTE: ", lnum);
 	vprintf(fmt, ap);
 	printf("\n");
 	va_end(ap);
@@ -138,13 +144,14 @@ int main(int argc, char *argv[])
     
     int i, n;
     int ai = 0;
-    bool help = false;
+    bool dbg_cond = false, help = false;
 
     for (int ai = 1; argv[ai]; ai++) {
         if (ARG("h") || ARG("help")) help = true; else
         if (ARG("in")) fn_in = ARGP; else
         if (ARG("out")) fn_out = ARGP; else
         if (ARG("list")) list = true; else
+        if (ARG("debug_cond")) dbg_cond = true; else
         
         if (ARG("def")) {
             ifdefs[n_ifdefs] = ARGP;
@@ -156,7 +163,7 @@ int main(int argc, char *argv[])
     }
 
     if (argc < 3 || help) {
-        printf("usage: %s [--list] [--def xxx] --in infile.txt --out outfile.abs\n", argv[0]);
+        printf("usage: %s [--list] [--def xxx] [--debug_cond] --in infile.txt --out outfile.abs\n", argv[0]);
         return -1;
     }
 
@@ -172,7 +179,13 @@ int main(int argc, char *argv[])
         char *bp = buf;
         lnum++;
         buf[strlen(buf)-1] = '\0';  // remove \n
-        if (list) printf("line #%04d: %06o | %s\n", lnum, pc, bp);
+        if (list) {
+            if (dbg_cond)
+                printf("line #%04d: %06o %01x %01x %01x %c %s\n", lnum, pc,
+                    lvl, inside_if, ignore_input, ignore_input? 'X':'|', bp);
+            else
+                printf("line #%04d: %06o %c %s\n", lnum, pc, ignore_input? 'X':'|', bp);
+        }
         while (*bp != '\0' && isspace(*bp)) bp++;   // remove leading whitespace
         if (*bp == '\0' || strncmp(bp, "//", 2) == 0)
             continue;
@@ -180,10 +193,11 @@ int main(int argc, char *argv[])
         char def_s[64];
         if (strcmp(bp, "#else") == 0) {
             if (!(inside_if & lvl))
-                error("#else not inside #if lvl=0x%x inside_if=0x%x ignore_input=0x%x", lvl, inside_if, ignore_input);
+                error("#else not inside #if lvl=%x inside_if=%x ignore_input=%x", lvl, inside_if, ignore_input);
             else
                 ignore_input ^= lvl;
-            //note("#else  lvl=0x%x inside_if=0x%x ignore_input=0x%x", lvl, inside_if, ignore_input);
+            if (dbg_cond)
+                note("#else  lvl=%x inside_if=%x ignore_input=%x", lvl, inside_if, ignore_input);
             continue;
         }
 
@@ -192,7 +206,8 @@ int main(int argc, char *argv[])
             ignore_input &= ~lvl;
             lvl >>= 1;
             if (lvl == 0) error("#endif without corresponding #if");
-            //note("#endif lvl=0x%x inside_if=0x%x ignore_input=0x%x", lvl, inside_if, ignore_input);
+            if (dbg_cond)
+                note("#endif lvl=%x inside_if=%x ignore_input=%x", lvl, inside_if, ignore_input);
             continue;
         }
 
@@ -208,7 +223,8 @@ int main(int argc, char *argv[])
             lvl <<= 1;
             inside_if |= lvl;
             if (i == n_ifdefs) ignore_input |= lvl; else ignore_input &= ~lvl;
-            //note("#ifdef lvl=0x%x inside_if=0x%x ignore_input=0x%x %s", lvl, inside_if, ignore_input, def_s);
+            if (dbg_cond)
+                note("#ifdef lvl=%x inside_if=%x ignore_input=%x %s", lvl, inside_if, ignore_input, def_s);
             continue;
         }
         

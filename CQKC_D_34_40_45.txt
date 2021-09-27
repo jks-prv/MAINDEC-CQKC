@@ -2,7 +2,7 @@
 // From DCQKCD listing of 4-sep-74 11:53 contained in file:
 // bitsavers.informatik.uni-stuttgart.de/pdf/dec/pdp11/xxdp/diag_listings/1140_45/028_MAINDEC-11-DCQKC-D_D_1140_1145_INSTRUCTION_EXERCISER_Sep74.pdf
 //
-// All values in octal.
+// All values in octal unless otherwise noted.
 //
 //
 // Syntax:
@@ -21,7 +21,8 @@
 //
 // Status:
 //
-//  Runs on 11/04 hardware (use "#define 11/04")
+//  Untested on PDP-11/04 system (use "#define 11/04")
+//  Runs on 11/04 CPU board using PUniBone (use "#define PB_11/04")
 //
 //  Runs on 11/05 emulator
 //  Untested on 11/05 hardware
@@ -98,15 +99,17 @@
 //  32436 end
 //
 //
-// Conditional compilation: (can be set here with #define or with "--def xxx" argument to txt2abs)
+// Conditional compilation: (can be set here with #define or with "--def xxx" arguments to txt2abs)
 //
 #define CQKC_E0_FIX
 //      A bug in the RESTPS entry point of the CLRTBIT routine is fixed by including a patch based on a
 //      correction included in the CQKC E0 revision.
 //
 //  #define 11/20
-//      Changes to support the 11/20:
-//          SWAB insn does *not* change V-bit
+//      Changes to support running on the 11/20:
+//          SWAB insn does *not* change V-bit. Don't believe it? I didn't either until I read this:
+//          bitsavers.org/pdf/dec/pdp11/1173/EK-DCJ11-UG-PRE_J11ug_Oct83.pdf
+//          PDF page 230, Table C-1, item 6 "SWAB does *not* change V"
 //
 //  #define 11/04
 //      Changes to support the 11/04:
@@ -123,8 +126,11 @@
 //  #define LMA_HIGHER
 //      Start probe for last memory address at address higher than default of zero.
 //
+//  #define START_TTYCHK
+//      Start with TTYCHK test.
+//
 //  #define PB_11/04
-//      Changes to support 11/04 testing with PUniBone.
+//      Changes to support 11/04 testing using PUniBone.
 //
 //
 // jks@jks.com
@@ -139,9 +145,6 @@
 // 010000 12 inhibit relocation
 // 004000 11 inhibit subtest iteration
 // 002000 10 ring bell on error
-//
-// ZQKC-specifc:
-// 000200 07 print non-error messages
 //
 // CQKC-specific:
 // 001000 09 inhibit relocation above 28kW (set 12 or 09 or neither, but never both)
@@ -161,6 +164,12 @@
 // 4231        // swreg: inh subtst iter, eo-pass-print, use rk (WORKS)
 //
 
+
+// pick one, either here or via "--def xxx" argument to txt2abs in Makefile
+//#define 11/20
+//#define 11/04
+//#define 11/34
+//#define PB_11/04
 
 #ifdef PB_11/04
     #define 11/04
@@ -1378,7 +1387,7 @@ b 0
 
     = 362
     12737   2       6   // mov #2, *6
-    12700   20000       // mov #20000, r0
+    12700   157700      // mov #157700, r0
     12707   5472        // return, but skip the "clr r0"
     ::400
 #else
@@ -1573,9 +1582,19 @@ b 0
 // page 33
 
 // rel0
-10700
-: 6262
-5740
+:: 6262
+
+#ifdef START_TTYCHK
+    12707   27640       // jmp ttychk
+#else
+    #ifdef START_KT_SECT_7
+        12707   26572       // jmp rel7
+    #else
+        10700
+        5740
+    #endif
+#endif
+
 10037   1010
 12737   0       5176
 4737    5166
@@ -6234,6 +6253,7 @@ b 0
 
 
 // rel7
+:: 26572
 10700
 5740
 10037   1010
@@ -6476,9 +6496,9 @@ b 0
 
 // rel77
 0
-: 27636
 
 //ttychk
+::27640
 5037    1004
 10701
 32737   400     764
@@ -6967,11 +6987,18 @@ b 0
 105037  177566
 105737  177564
 100375
-5000
-162700  1
-1375
-5
-105737  177570  // swreg
+
+#ifdef NO_END_DELAY
+    240 240     // nop; nop
+    240 240     // nop; nop
+#else
+    5000        // clr r0
+    162700  1   // 1$: sub #1, r0
+    1375        // bne 1$
+#endif
+
+5               // reset
+105737  177570  // tstb swreg
 100002
 4       32330
 13702   42
@@ -6999,10 +7026,17 @@ b 0
     0           // K.
     20          // KT
 #else
-    0           // K.
-    20          // KT
-    140000      // U.
-    140020      // UT
+    #ifdef PSW_KERNEL
+        0           // K.   only ever kernel mode (never trace trap)
+        0           // K.
+        0           // K.
+        0           // K.
+    #else
+        0           // K.
+        20          // KT
+        140000      // U.
+        140020      // UT
+    #endif
 #endif
 
 #endif
